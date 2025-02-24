@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Gastos</title>
+    <link rel="stylesheet" href="estilos/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gestor de Gastos</h1>
+
+        <!-- Formulario de Login -->
+        <div id="login-container">
+            <h2>Iniciar Sesión</h2>
+            <input type="text" id="username" placeholder="Usuario">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="login()">Ingresar</button>
+            <p id="login-error" class="error-message"></p>
+        </div>
+
+        <!-- Contenido para usuarios autenticados -->
+        <div id="dashboard" style="display: none;">
+            <h2>Registro de Gastos</h2>
+            <input type="text" id="concepto" placeholder="Concepto">
+            <input type="number" id="monto" placeholder="Monto">
+            <button onclick="agregarGasto()">Agregar Gasto</button>
+            
+            <h2>Lista de Gastos</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Monto</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-gastos">
+                    <!-- Aquí se mostrarán los gastos -->
+                </tbody>
+            </table>
+
+            <button onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
