@@ -1,6 +1,7 @@
 const express = require("express");
-const db = require("../models/db");
+const pool = require("../models/db"); // Ahora estamos usando pool
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const router = express.Router();
 
@@ -17,31 +18,43 @@ const authenticate = (req, res, next) => {
 };
 
 // Obtener gastos del usuario
-router.get("/", authenticate, (req, res) => {
-    db.query("SELECT * FROM gastos WHERE usuario_id = ?", [req.userId], (err, results) => {
-        if (err) return res.status(500).json({ error: "Error obteniendo gastos" });
+router.get("/", authenticate, async (req, res) => {
+    try {
+        const [results] = await pool.query("SELECT * FROM gastos WHERE usuario_id = ?", [req.userId]);
         res.json(results);
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Error obteniendo gastos" });
+    }
 });
 
 // Agregar gasto
-router.post("/", authenticate, (req, res) => {
-    const { concepto, monto } = req.body;
-    db.query("INSERT INTO gastos (usuario_id, concepto, monto) VALUES (?, ?, ?)", 
-        [req.userId, concepto, monto], 
-        (err, result) => {
-            if (err) return res.status(500).json({ error: "Error al agregar gasto" });
-            res.json({ id: result.insertId, concepto, monto });
-        }
-    );
+router.post("/", authenticate, async (req, res) => {
+    const { rubro_id, concepto_id, monto } = req.body;
+
+    // Verificar que los campos necesarios estén presentes
+    if (!rubro_id || !concepto_id || !monto) {
+        return res.status(400).json({ error: "Faltan campos necesarios" });
+    }
+
+    try {
+        const [result] = await pool.query(
+            "INSERT INTO gastos (usuario_id, rubro_id, concepto_id, monto) VALUES (?, ?, ?, ?)",
+            [req.userId, rubro_id, concepto_id, monto]
+        );
+        res.status(201).json({ id: result.insertId, rubro_id, concepto_id, monto });
+    } catch (err) {
+        res.status(500).json({ error: "Error al agregar gasto" });
+    }
 });
 
 // Eliminar gasto
-router.delete("/:id", authenticate, (req, res) => {
-    db.query("DELETE FROM gastos WHERE id = ? AND usuario_id = ?", [req.params.id, req.userId], (err) => {
-        if (err) return res.status(500).json({ error: "Error al eliminar gasto" });
+router.delete("/:id", authenticate, async (req, res) => {
+    try {
+        await pool.query("DELETE FROM gastos WHERE id = ? AND usuario_id = ?", [req.params.id, req.userId]);
         res.json({ message: "Gasto eliminado" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Error al eliminar gasto" });
+    }
 });
 
 module.exports = router;

@@ -10,8 +10,8 @@ router.post("/register", async (req, res) => {
     const { username, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    db.query("INSERT INTO usuarios (username, password) VALUES (?, ?)", 
-        [username, hashedPassword], 
+    db.query("INSERT INTO usuarios (username, password) VALUES (?, ?)",
+        [username, hashedPassword],
         (err, result) => {
             if (err) return res.status(500).json({ error: "Error al registrar usuario" });
             res.json({ message: "Usuario registrado exitosamente" });
@@ -19,7 +19,7 @@ router.post("/register", async (req, res) => {
     );
 });
 
-// Login
+// Login (usando bcrypt para comparar)
 router.post("/login", (req, res) => {
     const { username, password } = req.body;
 

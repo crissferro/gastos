@@ -43,6 +43,19 @@
             <button onclick="logout()">Cerrar Sesión</button>
         </div>
     </div>
+    <!-- Formulario de Gastos -->
+    <div id="dashboard" style="display: none;">
+        <h2>Registro de Gastos</h2>
+        <select id="rubro">
+            <option value="">Selecciona un Rubro</option>
+        </select>
+        <select id="concepto">
+            <option value="">Selecciona un Concepto</option>
+        </select>
+        <input type="number" id="monto" placeholder="Monto">
+        <button onclick="agregarGasto()">Agregar Gasto</button>
+    </div>
+
 
     <script src="app.js"></script>
 </body>
