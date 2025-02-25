@@ -1,72 +1,78 @@
 const API_URL = "http://localhost:3000"; // URL del backend
 
-async function login() {
+async function login(event) {
+
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-    });
+    try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (response.ok) {
-        localStorage.setItem("token", data.token);
-        mostrarDashboard();
-        obtenerGastos();
-    } else {
-        document.getElementById("login-error").innerText = data.error;
+        if (response.ok) {
+            localStorage.setItem("token", data.token);
+            //mostrarDashboard();
+            // Redirigir al dashboard
+            window.location.href = "dashboard.html";
+        } else {
+            document.getElementById("login-error").innerText = data.error;
+        }
+    } catch (error) {
+        console.error("Error en login:", error);
+        alert("Error en el login");
     }
 }
 
-// Cerrar sesión (ahora elimina la key "token")
 function logout() {
     localStorage.removeItem("token");
     location.reload();
 }
 
-// Mostrar u ocultar secciones según autenticación
 function mostrarDashboard() {
     document.getElementById("login-container").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
+
+    cargarRubros();
+    obtenerGastos();
 }
 
-// Agregar gastos
 async function agregarGasto() {
     const rubroId = document.getElementById("rubro").value;
     const conceptoId = document.getElementById("concepto").value;
     const monto = document.getElementById("monto").value;
 
-    // Verificar que los campos no estén vacíos
     if (!rubroId || !conceptoId || !monto) {
         alert("Por favor, complete todos los campos.");
         return;
     }
 
-    // Enviar la solicitud al backend
-    const response = await fetch(`${API_URL}/gastos`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({ rubro_id: rubroId, concepto_id: conceptoId, monto: monto })
-    });
+    try {
+        const response = await fetch(`${API_URL}/gastos`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ rubro_id: rubroId, concepto_id: conceptoId, monto: monto })
+        });
 
-    // Verificar si la solicitud fue exitosa
-    if (response.ok) {
-        // Actualizar la lista de gastos
-        obtenerGastos();
-    } else {
-        const errorData = await response.json();
-        console.error("Error al agregar el gasto:", errorData);
-        alert("Hubo un error al agregar el gasto.");
+        if (response.ok) {
+            obtenerGastos();
+        } else {
+            const errorData = await response.json();
+            console.error("Error al agregar el gasto:", errorData);
+            alert("Hubo un error al agregar el gasto.");
+        }
+    } catch (error) {
+        console.error("Error en agregar gasto:", error);
     }
 }
 
-// Obtener gastos
 async function obtenerGastos() {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -74,66 +80,89 @@ async function obtenerGastos() {
         return;
     }
 
-    const response = await fetch(`${API_URL}/gastos`, {
-        headers: { "Authorization": `Bearer ${token}` }
-    });
+    try {
+        const response = await fetch(`${API_URL}/gastos`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
 
-    if (!response.ok) {
-        console.error("Error al obtener los gastos:", await response.json());
-    } else {
+        if (!response.ok) {
+            console.error("Error al obtener los gastos:", await response.json());
+            return;
+        }
+
         const gastos = await response.json();
         const lista = document.getElementById("lista-gastos");
-        lista.innerHTML = gastos.map(g => `<tr><td>${g.concepto}</td><td>$${g.monto}</td></tr>`).join("");
+        lista.innerHTML = gastos.map(g => `<tr><td>${g.concepto}</td><td>$${g.monto}</td><td>
+            <button onclick="eliminarGasto(${g.id})" class="btn btn-danger">Eliminar</button>
+        </td></tr>`).join("");
+    } catch (error) {
+        console.error("Error en obtener gastos:", error);
     }
 }
 
+async function eliminarGasto(id) {
+    const token = localStorage.getItem("token");
 
-// Usar una única asignación a window.onload
-window.onload = () => {
-    if (localStorage.getItem("token")) {
-        mostrarDashboard();
-        obtenerGastos();
+    if (!confirm("¿Seguro que deseas eliminar este gasto?")) return;
+
+    try {
+        const response = await fetch(`${API_URL}/gastos/${id}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            obtenerGastos();
+        } else {
+            console.error("Error al eliminar el gasto.");
+        }
+    } catch (error) {
+        console.error("Error en eliminar gasto:", error);
     }
-};
-
-// Eliminar gasto de la tabla (este código es local; en el futuro se conectará con el backend)
-function eliminarGasto(boton) {
-    boton.parentElement.parentElement.remove();
 }
-// Cargar rubros
+
 async function cargarRubros() {
-    const response = await fetch(`${API_URL}/rubros`);
-    const rubros = await response.json();
-    const rubroSelect = document.getElementById("rubro");
-    rubros.forEach(rubro => {
-        const option = document.createElement("option");
-        option.value = rubro.id;
-        option.textContent = rubro.nombre;
-        rubroSelect.appendChild(option);
-    });
+    try {
+        const response = await fetch(`${API_URL}/rubros`);
+        const rubros = await response.json();
+        const rubroSelect = document.getElementById("rubro");
+
+        rubroSelect.innerHTML = '<option value="">Seleccione un rubro</option>';
+        rubros.forEach(rubro => {
+            const option = document.createElement("option");
+            option.value = rubro.id;
+            option.textContent = rubro.nombre;
+            rubroSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error en cargar rubros:", error);
+    }
 }
 
-// Cargar conceptos según el rubro seleccionado
 async function cargarConceptos(rubroId) {
-    const response = await fetch(`${API_URL}/conceptos/${rubroId}`);
-    const conceptos = await response.json();
-    const conceptoSelect = document.getElementById("concepto");
-    conceptoSelect.innerHTML = ''; // Limpiar antes de cargar
-    conceptos.forEach(concepto => {
-        const option = document.createElement("option");
-        option.value = concepto.id;
-        option.textContent = concepto.nombre;
-        conceptoSelect.appendChild(option);
-    });
+    try {
+        const response = await fetch(`${API_URL}/conceptos/${rubroId}`);
+        const conceptos = await response.json();
+        const conceptoSelect = document.getElementById("concepto");
+
+        conceptoSelect.innerHTML = '<option value="">Seleccione un concepto</option>';
+        conceptos.forEach(concepto => {
+            const option = document.createElement("option");
+            option.value = concepto.id;
+            option.textContent = concepto.nombre;
+            conceptoSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error en cargar conceptos:", error);
+    }
 }
 
-// Agregar evento para cargar los conceptos cuando se seleccione un rubro
 document.getElementById("rubro").addEventListener("change", (e) => {
     cargarConceptos(e.target.value);
 });
 
-// Llamar cargarRubros cuando la página se cargue
 window.onload = () => {
-    cargarRubros();
-    // ... el resto de tus funciones
+    if (localStorage.getItem("token")) {
+        mostrarDashboard();
+    }
 };

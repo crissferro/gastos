@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrar Rubros y Conceptos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Agregar Rubro</h2>
+        <form id="formRubro">
+            <input type="text" id="nombreRubro" class="w-full p-2 border rounded mb-2" placeholder="Nombre del rubro" required>
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">Agregar Rubro</button>
+        </form>
+
+        <h2 class="text-2xl font-bold mt-6 mb-4">Agregar Concepto</h2>
+        <form id="formConcepto">
+            <select id="selectRubro" class="w-full p-2 border rounded mb-2" required>
+                <option value="">Seleccionar Rubro</option>
+            </select>
+            <input type="text" id="nombreConcepto" class="w-full p-2 border rounded mb-2" placeholder="Nombre del concepto" required>
+            <button type="submit" class="w-full bg-green-500 text-white p-2 rounded">Agregar Concepto</button>
+        </form>
+    </div>
+
+    <script>
+        async function cargarRubros() {
+            const response = await fetch("/rubros");
+            const rubros = await response.json();
+            const selectRubro = document.getElementById("selectRubro");
+            selectRubro.innerHTML = '<option value="">Seleccionar Rubro</option>';
+            rubros.forEach(rubro => {
+                const option = document.createElement("option");
+                option.value = rubro.id;
+                option.textContent = rubro.nombre;
+                selectRubro.appendChild(option);
+            });
+        }
+
+        document.getElementById("formRubro").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById("nombreRubro").value;
+            const response = await fetch("/rubros", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nombre })
+            });
+            if (response.ok) {
+                alert("Rubro agregado correctamente");
+                document.getElementById("nombreRubro").value = "";
+                cargarRubros();
+            } else {
+                alert("Error al agregar rubro");
+            }
+        });
+
+        document.getElementById("formConcepto").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const rubro_id = document.getElementById("selectRubro").value;
+            const nombre = document.getElementById("nombreConcepto").value;
+            if (!rubro_id) {
+                alert("Selecciona un rubro");
+                return;
+            }
+            const response = await fetch("/conceptos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ rubro_id, nombre })
+            });
+            if (response.ok) {
+                alert("Concepto agregado correctamente");
+                document.getElementById("nombreConcepto").value = "";
+            } else {
+                alert("Error al agregar concepto");
+            }
+        });
+
+        cargarRubros();
+    </script>
+</body>
+</html>
