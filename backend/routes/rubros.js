@@ -1,22 +1,31 @@
-const express = require("express");
-const router = express.Router();
-const db = require("../models/db"); // Asumimos que tienes configurado un pool de conexión
+// backend/routes/rubros.js
+const express = require('express');
+const db = require('../models/db');
+const authenticate = require('../authMiddleware');
 
-// Agregar un rubro
-router.post("/", async (req, res) => {
-    const { nombre } = req.body;
-    db.query("INSERT INTO rubros (nombre) VALUES (?)", [nombre], (err, result) => {
-        if (err) return res.status(500).json({ error: "Error al agregar rubro" });
-        res.status(201).json({ id: result.insertId, nombre });
-    });
+const router = express.Router();
+
+// Ruta para agregar un rubro
+router.post('/', authenticate, async (req, res) => {
+    try {
+        const { nombre } = req.body;
+        await db.conn.query('INSERT INTO rubros (nombre) VALUES (?)', [nombre]);
+        res.status(201).json({ message: 'Rubro agregado exitosamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al agregar el rubro' });
+    }
 });
 
-// Listar rubros
-router.get("/", (req, res) => {
-    db.query("SELECT * FROM rubros", (err, rows) => {
-        if (err) return res.status(500).json({ error: "Error al obtener rubros" });
+// Ruta para obtener todos los rubros
+router.get('/', authenticate, async (req, res) => {
+    try {
+        const [rows] = await db.conn.query('SELECT * FROM rubros');
         res.json(rows);
-    });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los rubros' });
+    }
 });
 
 module.exports = router;

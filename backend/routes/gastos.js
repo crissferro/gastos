@@ -1,55 +1,31 @@
-const express = require("express");
-const db = require("../models/db"); // Ahora sin pool.promise()
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+// backend/routes/gastos.js
+const express = require('express');
+const db = require('../models/db');
+const authenticate = require('../authMiddleware');
 
 const router = express.Router();
 
-// Middleware para verificar el token
-const authenticate = (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(403).json({ error: "Acceso denegado" });
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) return res.status(401).json({ error: "Token inválido" });
-        req.userId = decoded.userId;
-        next();
-    });
-};
-
-// Obtener gastos del usuario
-router.get("/", authenticate, (req, res) => {
-    db.query("SELECT * FROM gastos WHERE usuario_id = ?", [req.userId], (err, results) => {
-        if (err) return res.status(500).json({ error: "Error obteniendo gastos" });
-        res.json(results);
-    });
-});
-
-// Agregar gasto
-router.post("/", authenticate, (req, res) => {
-    const { rubro_id, concepto_id, monto } = req.body;
-
-    if (!rubro_id || !concepto_id || !monto) {
-        return res.status(400).json({ error: "Faltan campos necesarios" });
+// Ruta para agregar un gasto
+router.post('/', authenticate, async (req, res) => {
+    try {
+        const { fecha, monto, concepto_id, rubro_id } = req.body;
+        await db.conn.query('INSERT INTO gastos (fecha, monto, concepto_id, rubro_id) VALUES (?, ?, ?, ?)', [fecha, monto, concepto_id, rubro_id]);
+        res.status(201).json({ message: 'Gasto agregado exitosamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al agregar el gasto' });
     }
-
-    db.query(
-        "INSERT INTO gastos (usuario_id, rubro_id, concepto_id, monto) VALUES (?, ?, ?, ?)",
-        [req.userId, rubro_id, concepto_id, monto],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: "Error al agregar gasto" });
-            res.status(201).json({ id: result.insertId, rubro_id, concepto_id, monto });
-        }
-    );
 });
 
-// Eliminar gasto
-router.delete("/:id", authenticate, (req, res) => {
-    db.query("DELETE FROM gastos WHERE id = ? AND usuario_id = ?", [req.params.id, req.userId], (err) => {
-        if (err) return res.status(500).json({ error: "Error al eliminar gasto" });
-        res.json({ message: "Gasto eliminado" });
-    });
+// Ruta para obtener todos los gastos
+router.get('/', authenticate, async (req, res) => {
+    try {
+        const [rows] = await db.conn.query('SELECT * FROM gastos');
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los gastos' });
+    }
 });
 
 module.exports = router;
-

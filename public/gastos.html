@@ -1,0 +1,30 @@
+<!-- public/gastos.html -->
+<div class="container">
+    <h2>Gastos</h2>
+    <form id="agregarGastoForm">
+        <div class="mb-3">
+            <label for="fechaGasto" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="fechaGasto" name="fechaGasto" required>
+        </div>
+        <div class="mb-3">
+            <label for="montoGasto" class="form-label">Monto</label>
+            <input type="number" class="form-control" id="montoGasto" name="montoGasto" required>
+        </div>
+        <div class="mb-3">
+            <label for="conceptoGasto" class="form-label">Concepto</label>
+            <select class="form-select" id="conceptoGasto" name="conceptoGasto" required>
+                <!-- Opciones de concepto se cargarán aquí dinámicamente -->
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="rubroGasto" class="form-label">Rubro</label>
+            <select class="form-select" id="rubroGasto" name="rubroGasto" required>
+                <!-- Opciones de rubro se cargarán aquí dinámicamente -->
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar Gasto</button>
+    </form>
+    <div id="listaGastos" class="mt-3">
+        <!-- Aquí se mostrará la lista de gastos -->
+    </div>
+</div>

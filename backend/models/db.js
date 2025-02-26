@@ -1,18 +1,16 @@
-const mysql = require("mysql2");
+const mysql = require('mysql2');
 
-const connection = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "", // En XAMPP, el usuario root por defecto no tiene contraseña
-    database: "gestor_gastos"
+const pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'gestor_gastos',
+    port: 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-connection.connect((err) => {
-    if (err) {
-        console.error("Error conectando a MySQL:", err);
-        return;
-    }
-    console.log("Conectado a MySQL");
-});
-
-module.exports = connection;
+module.exports = {
+    conn: pool.promise()
+};
