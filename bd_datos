@@ -1,0 +1,103 @@
+Base de datos: `gestor_gastos`
+
+CREATE TABLE `conceptos` (
+  `id` int(11) NOT NULL,
+  `rubro_id` int(11) NOT NULL,
+  `nombre` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE `gastos` (
+  `id` int(11) NOT NULL,
+  `fecha` date NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `concepto_id` int(11) DEFAULT NULL,
+  `rubro_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE `rubros` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+-- Indices de la tabla `conceptos`
+--
+ALTER TABLE `conceptos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `rubro_id` (`rubro_id`);
+
+--
+-- Indices de la tabla `gastos`
+--
+ALTER TABLE `gastos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `concepto_id` (`concepto_id`),
+  ADD KEY `rubro_id` (`rubro_id`);
+
+--
+-- Indices de la tabla `rubros`
+--
+ALTER TABLE `rubros`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `conceptos`
+--
+ALTER TABLE `conceptos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `gastos`
+--
+ALTER TABLE `gastos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `rubros`
+--
+ALTER TABLE `rubros`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `conceptos`
+--
+ALTER TABLE `conceptos`
+  ADD CONSTRAINT `conceptos_ibfk_1` FOREIGN KEY (`rubro_id`) REFERENCES `rubros` (`id`);
+
+--
+-- Filtros para la tabla `gastos`
+--
+ALTER TABLE `gastos`
+  ADD CONSTRAINT `gastos_ibfk_1` FOREIGN KEY (`concepto_id`) REFERENCES `conceptos` (`id`),
+  ADD CONSTRAINT `gastos_ibfk_2` FOREIGN KEY (`rubro_id`) REFERENCES `rubros` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
