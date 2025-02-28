@@ -1,14 +1,20 @@
+/* public/css/styles.css */
 /* Estilos para centrar el formulario */
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
     background-color: #f8f9fa; /* Un color de fondo suave */
+    /*display: flex;*/
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    min-height: 100vh;
 }
 
 .card {
     width: 100%;
     max-width: 400px; /* Ajusta el ancho máximo de la tarjeta */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Una sombra suave */
+}
+
+form label, form input, form select {
+    display: block; /* Coloca cada elemento en una línea nueva */
+    margin-bottom: 5px; /* Añade un espacio entre cada elemento */
 }
