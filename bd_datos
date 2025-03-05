@@ -1,23 +1,88 @@
-Base de datos: `gestor_gastos`
+-- Base de datos: `gestor_gastos`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `conceptos`
+--
 
 CREATE TABLE `conceptos` (
   `id` int(11) NOT NULL,
   `rubro_id` int(11) NOT NULL,
-  `nombre` varchar(255) NOT NULL
+  `nombre` varchar(255) NOT NULL,
+  `tipo` enum('ingreso','egreso') NOT NULL DEFAULT 'egreso',
+  `requiere_vencimiento` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `conceptos`
+--
+
+INSERT INTO `conceptos` (`id`, `rubro_id`, `nombre`, `tipo`, `requiere_vencimiento`) VALUES
+(37, 77, 'Colegio', 'egreso', 1),
+(38, 78, 'Cristian', 'ingreso', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `gastos`
+--
 
 CREATE TABLE `gastos` (
   `id` int(11) NOT NULL,
   `fecha` date NOT NULL,
   `monto` decimal(10,2) NOT NULL,
   `concepto_id` int(11) DEFAULT NULL,
-  `rubro_id` int(11) DEFAULT NULL
+  `fecha_vencimiento` date DEFAULT NULL,
+  `mes` int(11) NOT NULL,
+  `anio` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `gastos`
+--
+
+INSERT INTO `gastos` (`id`, `fecha`, `monto`, `concepto_id`, `fecha_vencimiento`, `mes`, `anio`) VALUES
+(17, '2025-02-28', 123.00, 38, '0000-00-00', 10, 123),
+(18, '2025-02-28', 123.00, 38, '0000-00-00', 3, 123),
+(19, '2025-02-28', 123.00, 38, '0000-00-00', 3, 123),
+(20, '2025-02-28', 24.00, 38, '0000-00-00', 2, 234),
+(21, '2025-02-28', 243.00, 37, '2025-03-06', 1, 234),
+(22, '2025-02-28', 234.00, 38, '0000-00-00', 2, 234),
+(23, '2025-02-28', 234.00, 38, '0000-00-00', 2, 234),
+(24, '2025-02-28', 55.00, 38, '0000-00-00', 2, 55),
+(25, '2025-02-28', 55.00, 38, '0000-00-00', 2, 55),
+(26, '2025-02-28', 55.00, 38, '0000-00-00', 2, 55),
+(27, '2025-02-28', 55.00, 38, '0000-00-00', 2, 55),
+(28, '2025-02-28', 1.00, 38, '0000-00-00', 1, 2),
+(29, '2025-02-28', 321.00, 38, '0000-00-00', 2, 321),
+(30, '2025-02-28', 444.00, 38, '0000-00-00', 10, 444);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `rubros`
+--
 
 CREATE TABLE `rubros` (
   `id` int(11) NOT NULL,
   `nombre` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `rubros`
+--
+
+INSERT INTO `rubros` (`id`, `nombre`) VALUES
+(77, 'Educacion'),
+(78, 'Sueldos');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `users`
+--
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
@@ -25,10 +90,23 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
+--
+-- Volcado de datos para la tabla `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password`) VALUES
+(3, 'admin', '$2b$10$M6bQl/qv.eJJ0625x6r/oOhBAoRstu.KzNREx9Mchgj9brxak3cbK');
+
+--
+-- Índices para tablas volcadas
+--
+
+--
 -- Indices de la tabla `conceptos`
 --
 ALTER TABLE `conceptos`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `nombre` (`nombre`,`rubro_id`),
   ADD KEY `rubro_id` (`rubro_id`);
 
 --
@@ -36,14 +114,14 @@ ALTER TABLE `conceptos`
 --
 ALTER TABLE `gastos`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `concepto_id` (`concepto_id`),
-  ADD KEY `rubro_id` (`rubro_id`);
+  ADD KEY `concepto_id` (`concepto_id`);
 
 --
 -- Indices de la tabla `rubros`
 --
 ALTER TABLE `rubros`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `nombre` (`nombre`);
 
 --
 -- Indices de la tabla `users`
@@ -60,19 +138,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de la tabla `conceptos`
 --
 ALTER TABLE `conceptos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `gastos`
 --
 ALTER TABLE `gastos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT de la tabla `rubros`
 --
 ALTER TABLE `rubros`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT de la tabla `users`
@@ -94,10 +172,9 @@ ALTER TABLE `conceptos`
 -- Filtros para la tabla `gastos`
 --
 ALTER TABLE `gastos`
-  ADD CONSTRAINT `gastos_ibfk_1` FOREIGN KEY (`concepto_id`) REFERENCES `conceptos` (`id`),
-  ADD CONSTRAINT `gastos_ibfk_2` FOREIGN KEY (`rubro_id`) REFERENCES `rubros` (`id`);
+  ADD CONSTRAINT `gastos_ibfk_1` FOREIGN KEY (`concepto_id`) REFERENCES `conceptos` (`id`);
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+ALTER TABLE gastos ADD COLUMN pagado BOOLEAN NOT NULL DEFAULT FALSE;
