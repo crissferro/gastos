@@ -18,3 +18,7 @@ form label, form input, form select {
     display: block; /* Coloca cada elemento en una línea nueva */
     margin-bottom: 5px; /* Añade un espacio entre cada elemento */
 }
+
+.table-cremita {
+    background-color: #FFF8DC; /* Color cremoso */
+  }

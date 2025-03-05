@@ -1,7 +1,68 @@
 <!-- public/listado-gastos.html -->
 <div class="container">
     <h2>Listado de Gastos</h2>
-    <div id="listaGastos" class="mt-3">
-        <!-- Aquí se mostrará la lista de gastos -->
+    <div class="row mb-3">
+        <div class="col-md-2">
+            <label for="mesFiltro" class="form-label">Filtrar por Mes</label>
+            <select class="form-select" id="mesFiltro" name="mesFiltro">
+                <option value="">Todos los meses</option>
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+             <label for="rubroFiltro" class="form-label">Filtrar por Rubro</label>
+            <select class="form-select" id="rubroFiltro" name="rubroFiltro">
+                <option value="">Todos los Rubros</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="conceptoFiltro" class="form-label">Filtrar por Concepto</label>
+            <select class="form-select" id="conceptoFiltro" name="conceptoFiltro">
+                <option value="">Todos los Conceptos</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="pagadoFiltro" class="form-label">Pagado</label>
+            <select class="form-select" id="pagadoFiltro" name="pagadoFiltro">
+                <option value="">Todos</option>
+                <option value="true">Pagado</option>
+                <option value="false">Pendiente</option>
+            </select>
+        </div>
+         <div class="col-md-2">
+             <label for="fechaVencimientoDesde" class="form-label">Vencimiento Desde</label>
+             <input type="date" class="form-control" id="fechaVencimientoDesde" name="fechaVencimientoDesde">
+        </div>
+         <div class="col-md-2">
+              <label for="fechaVencimientoHasta" class="form-label">Vencimiento Hasta</label>
+              <input type="date" class="form-control" id="fechaVencimientoHasta" name="fechaVencimientoHasta">
+        </div>
     </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha (MM-AAAA)</th>
+                <th>Fecha Vencimiento</th>
+                <th>Rubro</th>
+                <th>Concepto</th>
+                <th>Monto</th>
+                <th>Pagado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="listaGastos">
+            <!-- Aquí se mostrará la lista de gastos -->
+        </tbody>
+    </table>
 </div>

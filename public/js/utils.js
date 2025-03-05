@@ -20,6 +20,7 @@ export const cargarContenido = (url, callback) => {
         })
         .then(html => {
             mainContent.innerHTML = html;
+            // Execute the callback after the HTML has been loaded
             if (callback) {
                 callback();
             }
