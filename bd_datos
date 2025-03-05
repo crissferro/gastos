@@ -174,3 +174,7 @@ ALTER TABLE `conceptos`
 ALTER TABLE `gastos`
   ADD CONSTRAINT `gastos_ibfk_1` FOREIGN KEY (`concepto_id`) REFERENCES `conceptos` (`id`);
 COMMIT;
+
+
+
+ALTER TABLE gastos ADD COLUMN pagado BOOLEAN NOT NULL DEFAULT FALSE;
